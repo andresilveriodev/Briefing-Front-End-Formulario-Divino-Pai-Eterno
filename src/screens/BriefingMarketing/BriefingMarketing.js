@@ -1,32 +1,50 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { useForm, FormProvider, Controller} from 'react-hook-form';
 import { FormContainer, TextFieldElement } from 'react-hook-form-mui';
 import { Box, Button, Container, Typography, FormControl, Select, MenuItem} from '@mui/material';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import SendIcon from '@mui/icons-material/Send';
-import {Link} from 'react-router-dom';
+import {useNavigate, Link} from 'react-router-dom'
 import {enviarFormulario} from '../services/apiService';
+import FastRewindIcon from '@mui/icons-material/FastRewind';
+
+
 
 function BriefingMarketing() {
 
-  
+  const [redirect, setRedirect] = useState(false);
 
   const methods = useForm();
 
+  const navigate = useNavigate();
+
   const onSubmit = async (data) => {
-    console.log(data);
+    const formData = {
+        ...data,
+        tipoFormulario: 'BriefingMarketing' // Define o tipo de formulário
+    };
+
+    console.log(formData);
+
     try {
-      const response = await enviarFormulario(data);
-      console.log('Resposta do backend:', response);
+        const response = await enviarFormulario(formData);
+        console.log('Resposta do backend:', response);
+        setRedirect(true); // Sinaliza que o redirecionamento deve acontecer
     } catch (error) {
-      console.error('Erro ao enviar o formulário:', error);
+        console.error('Erro ao enviar o formulário:', error);
     }
-  };
+};
+
+
+useEffect(() => {
+  if (redirect) {
+    navigate('/obrigado'); // Redireciona para a página de "obrigado"
+  }
+}, [redirect, navigate]);
+
+
 
   const [solicitando, setSolicitando] = useState('');
+
 
   const handleSolicitandoChange = (event) => {
     setSolicitando(event.target.value);
@@ -45,6 +63,8 @@ function BriefingMarketing() {
                         src="/Logotipo Vertical Principal.png"
                         alt="Logotipo"
                         sx={{ width: '120px', height: '30%' }}
+                        
+                        
                     />
                     
                     <Typography sx={{paddingTop: '30px', paddingBottom: '30px', display: 'flex', justifyContent: 'center', textAlign: 'center', color: '#B80D46'}} variant="h5" gutterBottom>Briefing para demandas <br/> de Comunicação e Marketing</Typography>
@@ -68,7 +88,7 @@ function BriefingMarketing() {
 
                     <FormControl fullWidth sx={{ marginTop: '10px' }}>
                           <Controller
-                            name="solicitando"
+                            name="departamento"
                             defaultValue=""
                             rules={{ required: "Você precisa selecionar uma opção" }}
                             render={({ field }) => (
@@ -94,6 +114,7 @@ function BriefingMarketing() {
                                 <MenuItem value="Secretaria Da Presidência">SECRETARIA DA PRESIDÊNCIA</MenuItem>
                                 <MenuItem value="Suprimentos">SUPRIMENTOS</MenuItem>
                                 <MenuItem value="Tecnologia Da Informação">TECNOLOGIA DA INFORMAÇÃO</MenuItem>
+                                <MenuItem value="Marketing novos negocios">MKT E NOVOS NEGÓCIOS</MenuItem>
                                 <MenuItem value="Outro">OUTRO</MenuItem>
                               </Select>
                             )}
@@ -174,7 +195,7 @@ function BriefingMarketing() {
                           escolha de cada um baseado no perfil do público-alvo.</Typography>
                         <TextFieldElement 
                           fullWidth 
-                          name="público-alvo" 
+                          name="canais" 
                           id="outlined-multiline-static"
                           multiline
                           rows={4}
@@ -235,7 +256,7 @@ function BriefingMarketing() {
 
                   </FormProvider>
 
-                  <Button sx={{marginTop: '30px'}} component={Link} to='/' >Voltar</Button>
+                  <Button sx={{marginTop: '30px'}} component={Link} to='/' ><FastRewindIcon/>Voltar</Button>
 
           </Container>
 

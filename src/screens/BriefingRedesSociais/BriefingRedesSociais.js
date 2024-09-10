@@ -1,139 +1,31 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { useForm, FormProvider, Controller } from 'react-hook-form';
 import { FormContainer, TextFieldElement } from 'react-hook-form-mui';
 import { Box, Typography, TextField, MenuItem, Select, FormControl, InputLabel, Button, Container, IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import SendIcon from '@mui/icons-material/Send';
-import {Link} from 'react-router-dom';
-import EventIcon from '@mui/icons-material/Event';
+import {Link, useNavigate} from 'react-router-dom';
 import {enviarFormulario} from '../services/apiService';
+import FastRewindIcon from '@mui/icons-material/FastRewind';
 
 
-function BriefingMarketing() {
+function BriefingRedesSociais() {
+
+  const [redirect, setRedirect] = useState(false);
 
   const methods = useForm();
 
-
-  // Função para formatar o conteúdo do e-mail
-  function formatEmailData(formData) {
-    return `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-        <h2 style="background-color: #B80D46; color: white; padding: 10px; text-align: center;">Resumo do Briefing</h2>
-        <table style="width: 100%; border-collapse: collapse;">
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Departamento:</strong></td>
-            <td style="padding: 8px;">${formData.solicitando}</td>
-          </tr>
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Solicitante:</strong></td>
-            <td style="padding: 8px;">${formData.solicitante}</td>
-          </tr>
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Profissional responsável pela cobertura:</strong></td>
-            <td style="padding: 8px;">${formData.profissional}</td>
-          </tr>
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Data da solicitação:</strong></td>
-            <td style="padding: 8px;">${formData.data}</td>
-          </tr>
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Retranca:</strong></td>
-            <td style="padding: 8px;">${formData.retranca}</td>
-          </tr>
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Cobertura de nº/agosto:</strong></td>
-            <td style="padding: 8px;">${formData.cobertura}</td>
-          </tr>
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Data e horário do evento:</strong></td>
-            <td style="padding: 8px;">${formData.eventDateTime}</td>
-          </tr>
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Local (endereço completo):</strong></td>
-            <td style="padding: 8px;">${formData.local}</td>
-          </tr>
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Assunto da pauta:</strong></td>
-            <td style="padding: 8px;">${formData.pauta}</td>
-          </tr>
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Objetivo do conteúdo:</strong></td>
-            <td style="padding: 8px;">${formData.objetivo}</td>
-          </tr>
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Tipo de imagem desejada:</strong></td>
-            <td style="padding: 8px;">${formData.imagem}</td>
-          </tr>
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Quantidade de conteúdos derivados:</strong></td>
-            <td style="padding: 8px;">${formData.conteudo}</td>
-          </tr>
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Plataformas e objetivos específicos:</strong></td>
-            <td style="padding: 8px;">${formatPlatformsAndObjectives(formData.objetivo)}</td>
-          </tr>
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Pessoas a serem entrevistadas:</strong></td>
-            <td style="padding: 8px;">${formatInterviewees(formData.interviewees)}</td>
-          </tr>
-          <tr>
-            <td style="background-color: #f2f2f2; padding: 8px;"><strong>Informações adicionais:</strong></td>
-            <td style="padding: 8px;">${formData.informacoesAdicionais}</td>
-          </tr>
-        </table>
-      </div>
-    `;
-  }
-
-  // Função auxiliar para formatar plataformas e objetivos
-  function formatPlatformsAndObjectives(objetivo) {
-    return Object.keys(objetivo)
-      .map(platform => `<strong>${platform}:</strong> ${objetivo[platform]}`)
-      .join('<br/>');
-  }
-
-  // Função auxiliar para formatar entrevistados
-  function formatInterviewees(interviewees) {
-    return interviewees
-      .map(interviewee => `
-        <p>
-          <strong>Nome:</strong> ${interviewee.name}<br/>
-          <strong>Cargo:</strong> ${interviewee.role}<br/>
-          <strong>Contato:</strong> ${interviewee.contact}
-        </p>`)
-      .join('<hr/>');
-  }
-
-
-
-const onSubmit = async (data) => {
-  console.log(data);
-  const emailContent = formatEmailData(data); // Formatar os dados como HTML
-  try {
-    const response = await enviarFormulario({ emailContent }); // Enviar os dados formatados
-    console.log('Resposta do backend:', response);
-  } catch (error) {
-    console.error('Erro ao enviar o formulário:', error);
-  }
-};
-
-
-
+  const navigate = useNavigate();
+  
   const [plataforma, setPlataforma] = useState('');
-  const [solicitando, setSolicitando] = useState('');
   const [objetivo, setObjetivo] = useState({});
-
-  const handleSolicitandoChange = (event) => {
-    setSolicitando(event.target.value);
-  };
+  const [interviewees, setInterviewees] = useState([{ name: '', role: '', contact: '' }]);
+  const [platforms, setPlatforms] = useState([{ plataforma: '', objetivo: '' }]);
 
   const handlePlataformaChange = (event) => {
     setPlataforma(event.target.value);
+    console.log(event.target.value); // Corrigido para logar o valor, não a função
   };
 
   const handleObjetivoChange = (event) => {
@@ -142,22 +34,47 @@ const onSubmit = async (data) => {
       [plataforma]: event.target.value,
     }));
   };
-  
 
-  const methodss = useForm();
-  const [interviewees, setInterviewees] = useState([{ name: '', role: '', contact: '' }]);
 
-  const onSubmitt = (data) => {
-    console.log(data);
-  };
+  const onSubmit = async (data) => {
+    const formData = {
+        ...data,
+        tipoFormulario: 'BriefingRedesSociais' // Define o tipo de formulário
+    };
 
-  const addInterviewee = () => {
-    setInterviewees([...interviewees, { name: '', role: '', contact: '' }]);
-  };
+    console.log(formData);
 
-  const removeInterviewee = (index) => {
-    setInterviewees(interviewees.filter((_, i) => i !== index));
-  };
+    try {
+        const response = await enviarFormulario(formData);
+        console.log('Resposta do backend:', response);
+        setRedirect(true); // Sinaliza que o redirecionamento deve acontecer
+    } catch (error) {
+        console.error('Erro ao enviar o formulário:', error);
+    }
+};
+
+useEffect(() => {
+  if (redirect) {
+    navigate('/obrigado'); // Redireciona para a página de "obrigado"
+  }
+}, [redirect, navigate]);
+
+const addInterviewee = () => {
+  setInterviewees([...interviewees, { name: '', role: '', contact: '' }]);
+};
+
+const removeInterviewee = (index) => {
+  setInterviewees(interviewees.filter((_, i) => i !== index));
+};
+
+const addPlatform = () => {
+  setPlatforms([...platforms, { plataforma: '', objetivo: '' }]);
+};
+
+const removePlatform = (index) => {
+  setPlatforms(platforms.filter((_, i) => i !== index));
+};
+
 
   
 
@@ -192,7 +109,7 @@ const onSubmit = async (data) => {
                               
                             <FormControl fullWidth sx={{ marginTop: '10px' }}>
                                   <Controller
-                                    name="solicitando"
+                                    name="departamento"
                                     defaultValue=""
                                     rules={{ required: "Você precisa selecionar uma opção" }}
                                     render={({ field }) => (
@@ -218,6 +135,7 @@ const onSubmit = async (data) => {
                                         <MenuItem value="Secretaria Da Presidência">SECRETARIA DA PRESIDÊNCIA</MenuItem>
                                         <MenuItem value="Suprimentos">SUPRIMENTOS</MenuItem>
                                         <MenuItem value="Tecnologia Da Informação">TECNOLOGIA DA INFORMAÇÃO</MenuItem>
+                                        <MenuItem value="Marketing novos negocios">MKT E NOVOS NEGÓCIOS</MenuItem>
                                         <MenuItem value="Outro">OUTRO</MenuItem>
                                       </Select>
                                     )}
@@ -230,9 +148,9 @@ const onSubmit = async (data) => {
 
                         <TextFieldElement placeholder="Ex: Pe. Marco Aurélio"  sx={{paddingTop: '8px', width: { xs: '100%', sm: '100%', md: '100%px'} }} name="solicitante" label="Solicitante:" required rules={{ required: "O campo Solicitante é obrigatório." }}/>
                         <TextFieldElement placeholder="Ex: Roberta" sx={{paddingTop: '8px', width: { xs: '100%', sm: '100%', md: '100%px'} }} name="profissional" label="Profissional responsável pela cobertura:" required rules={{ required: "O campo Profissional responsável pela cobertura é obrigatório." }}  />
-                        <TextFieldElement placeholder="Ex: 20/07/2024" sx={{paddingTop: '8px', width: { xs: '100%', sm: '100%', md: '100%px'} }} name="profissional" label="Data da solicitação:" required rules={{ required: "O campo Data é obrigatório." }}  />
-                        <TextFieldElement placeholder="Ex: Roberta" sx={{paddingTop: '8px', width: { xs: '100%', sm: '100%', md: '100%px'} }} name="profissional" label="Retranca:" required rules={{ required: "O campo Profissional responsável pela cobertura é obrigatório." }}  />
-                        <TextFieldElement placeholder="Ex: 20/07/2024" sx={{paddingTop: '8px', width: { xs: '100%', sm: '100%', md: '100%px'} }} name="profissional" label="Cobertura de nº_______/agosto" required rules={{ required: "O campo Data é obrigatório." }}  />
+                        <TextFieldElement placeholder="Ex: 20/07/2024" sx={{paddingTop: '8px', width: { xs: '100%', sm: '100%', md: '100%px'} }} name="Data da solicitação" label="Data da solicitação:" required rules={{ required: "O campo Data é obrigatório." }}  />
+                        <TextFieldElement placeholder="Ex: Roberta" sx={{paddingTop: '8px', width: { xs: '100%', sm: '100%', md: '100%px'} }} name="retranca" label="Retranca:" required rules={{ required: "O campo Profissional responsável pela cobertura é obrigatório." }}  />
+                        <TextFieldElement placeholder="Ex: 20/07/2024" sx={{paddingTop: '8px', width: { xs: '100%', sm: '100%', md: '100%px'} }} name="cobertura" label="Cobertura de nº_______/agosto" required rules={{ required: "O campo Data é obrigatório." }}  />
 
                       </Box>
 
@@ -246,7 +164,7 @@ const onSubmit = async (data) => {
                         <Typography sx={{color: '#626262'}}>1. Data e horário do evento:</Typography>
                         <TextFieldElement 
                           fullWidth 
-                          name="material a ser produzido" 
+                          name="data e horário do evento" 
                           id="outlined-multiline-static"
                           multiline
                           rows={4}
@@ -260,7 +178,7 @@ const onSubmit = async (data) => {
                         <Typography sx={{color: '#626262'}}>2. Local (endereço completo):</Typography>
                         <TextFieldElement 
                           fullWidth 
-                          name="objetivo desta produção" 
+                          name="local" 
                           id="outlined-multiline-static"
                           multiline
                           rows={4}
@@ -274,7 +192,7 @@ const onSubmit = async (data) => {
                         <Typography sx={{color: '#626262'}}>3. Assunto da pauta.</Typography>
                         <TextFieldElement 
                           fullWidth 
-                          name="Público-Alvo" 
+                          name="assunto da pauta" 
                           id="outlined-multiline-static"
                           multiline
                           rows={4}
@@ -288,7 +206,7 @@ const onSubmit = async (data) => {
                         <Typography sx={{color: '#626262'}}>4. Objetivo do conteúdo:</Typography>
                         <TextFieldElement 
                           fullWidth 
-                          name="mensagem fundamental" 
+                          name="objetivo do conteúdo" 
                           id="outlined-multiline-static"
                           multiline
                           rows={4}
@@ -302,7 +220,7 @@ const onSubmit = async (data) => {
                       <Typography sx={{color: '#626262'}}>5. Qual é o tipo de imagem que se pretende obter nesta cobertura? Seja detalhista.</Typography>
                         <TextFieldElement 
                           fullWidth 
-                          name="público-alvo" 
+                          name="detalhista" 
                           id="outlined-multiline-static"
                           multiline
                           rows={4}
@@ -316,7 +234,7 @@ const onSubmit = async (data) => {
                         <Typography sx={{color: '#626262'}}>6. Quantidade de Conteúdos Derivados que se pretende obter?</Typography>
                         <TextFieldElement 
                           fullWidth 
-                          name="orçamento sugerido" 
+                          name="quantidade" 
                           id="outlined-multiline-static"
                           multiline
                           rows={4}
@@ -326,7 +244,7 @@ const onSubmit = async (data) => {
                       </Box>
 
 
-                      <Box mb={2} sx={{ paddingTop: '20px' }}>
+                     {/* <Box mb={2} sx={{ paddingTop: '20px' }}>
                             <Typography sx={{ color: '#626262' }}>7. Plataformas e objetivos específicos:</Typography>
                             <FormControl fullWidth sx={{ marginTop: '10px' }}>  
                               <Select
@@ -361,42 +279,78 @@ const onSubmit = async (data) => {
                                 sx={{ marginTop: '20px' }}
                               />
                             )}
-                    </Box>
+                    </Box> */}
+
+                    <Box>
+
+                    <Box mb={2} sx={{ paddingTop: '20px' }}>
+                          <Typography sx={{ color: '#626262', paddingBottom: '15px' }}>7. Plataformas e objetivos específicos:</Typography>
+                          {platforms.map((platform, index) => (
+                            <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                              <TextFieldElement
+                                name={`platforms[${index}].plataforma`}
+                                label="EX: Instagram/Facebook"
+                                sx={{ flex: 1 }}
+                                required
+                                rules={{ required: "O campo é obrigatório." }}
+                              />
+                              <TextFieldElement
+                                name={`platforms[${index}].objetivo`}
+                                label="Objetivo"
+                                sx={{ flex: 1 }}
+                                required
+                                rules={{ required: "O campo é obrigatório." }}
+                              />
+                              <IconButton onClick={() => removePlatform(index)} disabled={platforms.length === 1}>
+                                <RemoveIcon />
+                              </IconButton>
+                            </Box>
+                          ))}
+                          <Button startIcon={<AddIcon />} onClick={addPlatform}>
+                            Mais
+                          </Button>
+                  </Box>
+
+
+                  </Box>
 
                    <Box>
 
                           {/* Outros campos de formulário... */}
                           <Box mb={2} sx={{ paddingTop: '20px' }}>
-                            <Typography sx={{ color: '#626262' }}>8. Pessoas a serem entrevistadas:</Typography>
-                            {interviewees.map((interviewee, index) => (
-                              <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
-                                <TextFieldElement
-                                  name={`interviewees[${index}].name`}
-                                  label="Nome"
-                                  sx={{ flex: 1 }}
-                                  required
-                                />
-                                <TextFieldElement
-                                  name={`interviewees[${index}].role`}
-                                  label="Cargo/Função"
-                                  sx={{ flex: 1 }}
-                                  required
-                                />
-                                <TextFieldElement
-                                  name={`interviewees[${index}].contact`}
-                                  label="Contato"
-                                  sx={{ flex: 1 }}
-                                  required
-                                />
-                                <IconButton onClick={() => removeInterviewee(index)} disabled={interviewees.length === 1}>
-                                  <RemoveIcon />
-                                </IconButton>
-                              </Box>
-                            ))}
-                            <Button startIcon={<AddIcon />} onClick={addInterviewee}>
-                              Mais
-                            </Button>
-                          </Box>
+                              <Typography sx={{ color: '#626262', paddingBottom: '15px' }}>8. Pessoas a serem entrevistadas:</Typography>
+                              {interviewees.map((interviewee, index) => (
+                                <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                                  <TextFieldElement
+                                    name={`interviewees[${index}].name`}
+                                    label="Nome"
+                                    sx={{ flex: 1 }}
+                                    required
+                                    rules={{ required: "O campo é obrigatório." }}
+                                  />
+                                  <TextFieldElement
+                                    name={`interviewees[${index}].role`}
+                                    label="Cargo/Função"
+                                    sx={{ flex: 1 }}
+                                    required
+                                    rules={{ required: "O campo é obrigatório." }}
+                                  />
+                                  <TextFieldElement
+                                    name={`interviewees[${index}].contact`}
+                                    label="Contato"
+                                    sx={{ flex: 1 }}
+                                    required
+                                    rules={{ required: "O campo é obrigatório." }}
+                                  />
+                                  <IconButton onClick={() => removeInterviewee(index)} disabled={interviewees.length === 1}>
+                                    <RemoveIcon />
+                                  </IconButton>
+                                </Box>
+                              ))}
+                              <Button startIcon={<AddIcon />} onClick={addInterviewee}>
+                                Mais
+                              </Button>
+                        </Box>
 
 
                    </Box>
@@ -422,7 +376,7 @@ const onSubmit = async (data) => {
 
                   </FormProvider>
 
-                  <Button sx={{marginTop: '30px'}} component={Link} to='/' >Voltar</Button>
+                  <Button sx={{marginTop: '30px'}} component={Link} to='/' ><FastRewindIcon/>Voltar</Button>
 
           </Container>
 
@@ -434,4 +388,4 @@ const onSubmit = async (data) => {
   )
 }
 
-export default BriefingMarketing
+export default BriefingRedesSociais;
